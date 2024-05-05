@@ -8,9 +8,7 @@ body {
 #container {
     margin: 0 auto;
     padding: 20px;
-    background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 h1 {
@@ -67,14 +65,6 @@ button:hover {
     background-attachment: fixed; /* Fixar a imagem para cobrir toda a tela, mesmo ao rolar */
 }
 
-#container {
-    margin: 0 auto;
-    padding: 20px;
-    background-image: url('imagens/background_drgball.jpg');
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
 
 h1 {
     color: #333;
