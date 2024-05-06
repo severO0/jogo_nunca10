@@ -120,7 +120,7 @@ function rollDice(playerName) {
 
                     // Exibir mensagem de vencedor
                     const winnerMessage = document.createElement('div');
-                    winnerMessage.innerText = `Jogador ${playerName} venceu!`;
+                    winnerMessage.innerHTML = `<h1>Jogador ${playerName} venceu!</h1>`;
                     winnerMessage.classList.add('winnerMessage'); // Adiciona a classe para estilização CSS
                     document.body.appendChild(winnerMessage);
                     const buttons = document.querySelectorAll('.playerButton');
@@ -130,10 +130,12 @@ function rollDice(playerName) {
 
                     // Botão de restart
                     const restartButton = document.createElement('button');
-                    restartButton.innerText = 'Reiniciar Jogo';
-                    restartButton.classList.add('restartButton'); // Adiciona a classe para estilização CSS
-                    restartButton.onclick = () => resetAll();
-                    document.body.appendChild(restartButton);
+                        restartButton.innerText = 'Reiniciar Jogo';
+                        restartButton.classList.add('restartButton'); // Adiciona a classe para estilização CSS
+                        restartButton.onclick = () => resetAll();
+                        winnerMessage.appendChild(restartButton);
+
+document.body.appendChild(div);
                 } else {
                     diceResult.innerText = `Resultado do dado: ${diceRoll}`;
 
