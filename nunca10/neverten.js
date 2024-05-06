@@ -2,7 +2,9 @@ numPlayers = sessionStorage.getItem('numPlayers');
 let ordem = 1;
 if (numPlayers == null) {
     numPlayers = 4;
+
 }
+
 for (let i = 1; i <= numPlayers; i++) {
     const playerContainer = document.createElement('div');
     playerContainer.classList.add('playerContainer');
@@ -10,20 +12,30 @@ for (let i = 1; i <= numPlayers; i++) {
         <h2>Jogador ${i}</h2>
         <div class="diceResult">Resultado do dado:</div>
         <div class="totalresult">Pontuação:</div>
-        <button id="playerButton${i}" onclick="rollDice(${i})">Rolar Dado</button>
+        <button id="playerButton${i}">Rolar Dado</button>
     `;
     document.getElementById('players').appendChild(playerContainer);
+
+    // Adiciona o manipulador de eventos onclick ao botão
+    const button = document.getElementById(`playerButton${i}`);
+    button.addEventListener('click', () => rollDice(i));
 }
 
 let players = [];
 for (let i = 1; i <= numPlayers; i++) {
+    let playerName = prompt(`Digite o nome do Jogador ${i}:`);
+    while (!playerName) {
+        playerName = prompt(`Nome inválido. Digite o nome do Jogador ${i}:`);
+    }
     players[i] = {
+        name: playerName,
         totalPoints: 0,
         dezenas: "",
         centenas: "",
         iswon: false
     };
 }
+
 function updateNumPlayers() {
     const selectElement = document.getElementById('numPlayersSelect');
     numPlayers = parseInt(selectElement.value); // Converte para número inteiro
@@ -34,8 +46,10 @@ function updateNumPlayers() {
 
     // Adiciona os novos jogadores com base na seleção
     for (let i = 1; i <= numPlayers; i++) {
-        
-        const playerName = prompt(`Digite o nome do Jogador ${i}:`);
+        let playerName = prompt(`Digite o nome do Jogador ${i}:`);
+        while (!playerName) {
+            playerName = prompt(`Nome inválido. Digite o nome do Jogador ${i}:`);
+        }
         
         const playerContainer = document.createElement('div');
         playerContainer.classList.add('playerContainer');
@@ -52,7 +66,6 @@ function updateNumPlayers() {
     resetAll();
 }
 
-
 function updateButtons(playerName) {
     // Desabilitar todos os botões
     const buttons = document.querySelectorAll('.playerButton');
@@ -68,8 +81,8 @@ function updateButtons(playerName) {
     }
 
     // Habilitar o botão do próximo jogador
-    const nextplayerName = playerName % numPlayers + 1;
-    const nextPlayerButton = document.getElementById(`playerButton${nextplayerName}`);
+    const nextPlayerName = getNextPlayerName(playerName);
+    const nextPlayerButton = document.getElementById(`playerButton${nextPlayerName}`);
     if (nextPlayerButton) {
         nextPlayerButton.disabled = false;
         nextPlayerButton.innerText = 'Rolar Dado'; // Alterar o texto do botão de volta para 'Rolar Dado'
@@ -82,9 +95,6 @@ function rollDice(playerName) {
         if (!player.iswon) {
             // Gerar um número aleatório de 1 a 6
             const diceRoll = Math.floor(Math.random() * 6) + 1;
-
-            // Selecione o elemento de imagem
-            const imgElement = document.getElementById('diceImage');
 
             // Obter o contêiner do jogador correspondente
             const playerContainer = document.querySelectorAll('.playerContainer')[playerName - 1];
@@ -120,20 +130,17 @@ function rollDice(playerName) {
 
                     // Exibir mensagem de vencedor
                     const winnerMessage = document.createElement('div');
-                    winnerMessage.innerText = `Jogador ${playerName} venceu!`;
+                    winnerMessage.innerText = `${player.name} venceu!`;
                     winnerMessage.classList.add('winnerMessage'); // Adiciona a classe para estilização CSS
                     document.body.appendChild(winnerMessage);
-                    const buttons = document.querySelectorAll('.playerButton');
-                    buttons.forEach(button => {
-                        button.disabled = true;
-                    });
 
                     // Botão de restart
                     const restartButton = document.createElement('button');
+                    document.body.appendChild(restartButton);
                     restartButton.innerText = 'Reiniciar Jogo';
                     restartButton.classList.add('restartButton'); // Adiciona a classe para estilização CSS
                     restartButton.onclick = () => resetAll();
-                    document.body.appendChild(restartButton);
+                    playersContainer.appendChild(restartButton); // Adiciona o botão ao contêiner de jogadores
                 } else {
                     diceResult.innerText = `Resultado do dado: ${diceRoll}`;
 
@@ -158,17 +165,12 @@ function rollDice(playerName) {
     }
 }
 
-function resetAll() {
-    ordem = 1; // Reseta a ordem dos jogadores
-    for (let i = 1; i <= numPlayers; i++) {
-        resetPlayer(i);
+function getNextPlayerName(playerName) {
+    let nextPlayerName = playerName + 1;
+    if (nextPlayerName > numPlayers) {
+        nextPlayerName = 1;
     }
-
-    // Remove a mensagem de vencedor e o botão de restart
-    const winnerMessage = document.querySelector('.winnerMessage');
-    const restartButton = document.querySelector('.restartButton');
-    if (winnerMessage) winnerMessage.remove();
-    if (restartButton) restartButton.remove();
+    return nextPlayerName;
 }
 
 function resetPlayer(playerName) {
@@ -184,4 +186,17 @@ function resetPlayer(playerName) {
 
     const totalresult = playerContainer.querySelector('.totalresult');
     totalresult.innerText = `Pontuação: ${player.centenas}${player.dezenas}${player.totalPoints}`;
+}
+
+function resetAll() {
+    ordem = 1; // Reseta a ordem dos jogadores
+    for (let i = 1; i <= numPlayers; i++) {
+        resetPlayer(i);
+    }
+
+    // Remove a mensagem de vencedor e o botão de restart
+    const winnerMessage = document.querySelector('.winnerMessage');
+    const restartButton = document.querySelector('.restartButton');
+    if (winnerMessage) winnerMessage.remove();
+    if (restartButton) restartButton.remove();
 }
