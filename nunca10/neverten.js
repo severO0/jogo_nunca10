@@ -1,5 +1,9 @@
-numPlayers = sessionStorage.getItem('numPlayers');
+let numPlayers = sessionStorage.getItem('numPlayers');
 let ordem = 1;
+function iniciarJogo() {
+    const playersContainer = document.getElementById('players');
+    playersContainer.innerHTML = '';
+}
 if (numPlayers == null) {
     numPlayers = 4;
 }
@@ -24,15 +28,53 @@ for (let i = 1; i <= numPlayers; i++) {
         iswon: false
     };
 }
+function exibirRegras() {
+
+    const blurContainer = document.createElement('div');
+    blurContainer.classList.add('blur-container');
+
+    const regrasContainer = document.createElement('div');
+    regrasContainer.classList.add('regrasContainer');
+    regrasContainer.innerHTML = `
+        <h2>Regras do Jogo</h2>
+        <p class="fonte-divertida">
+    1. Para saber quem será o primeiro, os participantes escolhem um entre eles e o jogo continua no sentido horário.
+    </p>
+    <p class="fonte-divertida">
+    2. O primeiro jogador clica no botão e aguarda a visualização do número gerado pelo sistema. Em seguida, ele adiciona as unidades em uma área reservada para ele.
+    </p>
+    <p class="fonte-divertida">
+    3. O próximo jogador participará da mesma maneira que o primeiro e assim sucessivamente, por várias rodadas seguidas.
+    </p>
+    <p class="fonte-divertida">
+    4. Ao juntar 10 números, com 1 unidade simples cada, o jogador deve trocá-las por 1 estrela com dez unidades, ou seja, uma dezena. OBS: Dezena está sendo representada pela estrela " ★ ".
+    </p>
+    <p class="fonte-divertida">
+    5.Ao juntar 10 barras com 1 dezena em cada, o jogador deve trocá-las pela placa contendo uma centena. OBS: Centena está sendo representada pelo Sol " ☀ " .
+    </p>
+    <p class="fonte-divertida"> 
+    6. Será vencedor o jogador que primeiro fizer a troca por uma placa, que representa a terceira ordem, isto é, 100 unidades. 
+    </p>
+        <button class="fecharRegras" onclick="fecharRegras()">OK</button>
+    `;
+    blurContainer.appendChild(regrasContainer);
+    document.body.appendChild(blurContainer);
+    
+        
+}
+
+function fecharRegras() {
+    const blurContainer = document.querySelector('.blur-container');
+    if (blurContainer) {
+        blurContainer.remove();
+    }
+}
+
 function updateNumPlayers() {
     const selectElement = document.getElementById('numPlayersSelect');
-    numPlayers = parseInt(selectElement.value); // Converte para número inteiro
-
-    // Remove todos os jogadores existentes
+    numPlayers = parseInt(selectElement.value); 
     const playersContainer = document.getElementById('players');
     playersContainer.innerHTML = '';
-
-    // Adiciona os novos jogadores com base na seleção
     for (let i = 1; i <= numPlayers; i++) {
         
         const playerName = prompt(`Digite o nome do Jogador ${i}:`);
@@ -47,32 +89,30 @@ function updateNumPlayers() {
         `;
         playersContainer.appendChild(playerContainer);
     }
-
-    // Reinicia o jogo para refletir a nova configuração de jogadores
     resetAll();
 }
 
 
 function updateButtons(playerName) {
-    // Desabilitar todos os botões
+    
     const buttons = document.querySelectorAll('.playerButton');
     buttons.forEach(button => {
         button.disabled = true;
     });
 
-    // Habilitar o botão do jogador atual
+    
     const currentPlayerButton = document.getElementById(`playerButton${playerName}`);
     if (currentPlayerButton) {
         currentPlayerButton.disabled = false;
-        currentPlayerButton.innerText = 'Espere'; // Alterar o texto do botão para 'Espere'
+        currentPlayerButton.innerText = 'Espere'; 
     }
 
-    // Habilitar o botão do próximo jogador
+    
     const nextplayerName = playerName % numPlayers + 1;
     const nextPlayerButton = document.getElementById(`playerButton${nextplayerName}`);
     if (nextPlayerButton) {
         nextPlayerButton.disabled = false;
-        nextPlayerButton.innerText = 'Rolar Dado'; // Alterar o texto do botão de volta para 'Rolar Dado'
+        nextPlayerButton.innerText = 'Rolar Dado'; 
     }
 }
 
@@ -80,79 +120,56 @@ function rollDice(playerName) {
     const player = players[playerName];
     if (ordem == playerName) {
         if (!player.iswon) {
-            // Gerar um número aleatório de 1 a 6
-            const diceRoll = Math.floor(Math.random() * 6) + 1;
-
-            // Selecione o elemento de imagem
+            const diceRoll = Math.floor(Math.random() * 10);
             const imgElement = document.getElementById('diceImage');
-
-            // Obter o contêiner do jogador correspondente
             const playerContainer = document.querySelectorAll('.playerContainer')[playerName - 1];
-
-            // Atualizar o resultado do dado na página
             const diceResult = playerContainer.querySelector('.diceResult');
             diceResult.innerText = `Resultado do dado: ${diceRoll}`;
-
-            // Adicionar o valor do dado aos pontos totais
             player.totalPoints += diceRoll;
 
-            // Verificar se o total de pontos é maior ou igual a 10
             if (player.totalPoints >= 10) {
-                // Substituir os pontos por um ícone (estrela)
+                
                 player.totalPoints -= 10;
                 player.dezenas += " \u2605 ";
 
-                // Corrigir a condição para verificar se o jogador atingiu 10 dezenas
+                
                 if (player.dezenas.split(' \u2605 ').length - 1 >= 10) {
-                    player.centenas += " Δ ";
+                    player.centenas += " \u2600 ";
                     player.dezenas = "";
                 }
-
-                // Corrigir a condição para verificar se o jogador ganhou o jogo
-                if (player.centenas.split(' Δ ').length - 1 >= 1) {
+                if (player.centenas.split(' \u2600 ').length - 1 >= 1) {
                     player.iswon = true;
                     diceResult.innerText = "Fim do jogo, chegou a 100";
-
-                    // Exibir pontuação atualizada
-                    const totalresult = playerContainer.querySelector('.totalresult');
+                                    const totalresult = playerContainer.querySelector('.totalresult');
                     totalresult.innerText = `Pontuação: ${player.centenas}${player.dezenas}${player.totalPoints}`;
                     updateButtons(playerName);
-
-                    // Exibir mensagem de vencedor
-                    const winnerMessage = document.createElement('div');
+                     const winnerMessage = document.createElement('div');
                     winnerMessage.innerHTML = `<h1>Jogador ${playerName} venceu!</h1>`;
-                    winnerMessage.classList.add('winnerMessage'); // Adiciona a classe para estilização CSS
+                    winnerMessage.classList.add('winnerMessage'); 
                     document.body.appendChild(winnerMessage);
                     const buttons = document.querySelectorAll('.playerButton');
                     buttons.forEach(button => {
                         button.disabled = true;
                     });
-
-                    // Botão de restart
-                    const restartButton = document.createElement('button');
+                        const restartButton = document.createElement('button');
                         restartButton.innerText = 'Reiniciar Jogo';
-                        restartButton.classList.add('restartButton'); // Adiciona a classe para estilização CSS
+                        restartButton.classList.add('restartButton'); 
                         restartButton.onclick = () => resetAll();
                         winnerMessage.appendChild(restartButton);
-
-document.body.appendChild(div);
+                        document.body.appendChild(div);
                 } else {
                     diceResult.innerText = `Resultado do dado: ${diceRoll}`;
-
-                    // Exibir pontuação atualizada
                     const totalresult = playerContainer.querySelector('.totalresult');
                     totalresult.innerText = `Pontuação: ${player.centenas}${player.dezenas}${player.totalPoints}`;
                     updateButtons(playerName);
                 }
             }
-
-            // Exibir pontuação atualizada
             const totalresult = playerContainer.querySelector('.totalresult');
             totalresult.innerText = `Pontuação: ${player.centenas}${player.dezenas}${player.totalPoints}`;
             updateButtons(playerName);
         }
 
-        // Atualiza a ordem para o próximo jogador ativo
+        
         ordem++;
         if (ordem > numPlayers) {
             ordem = 1;
@@ -161,12 +178,10 @@ document.body.appendChild(div);
 }
 
 function resetAll() {
-    ordem = 1; // Reseta a ordem dos jogadores
+    ordem = 1; 
     for (let i = 1; i <= numPlayers; i++) {
         resetPlayer(i);
     }
-
-    // Remove a mensagem de vencedor e o botão de restart
     const winnerMessage = document.querySelector('.winnerMessage');
     const restartButton = document.querySelector('.restartButton');
     if (winnerMessage) winnerMessage.remove();
@@ -179,11 +194,9 @@ function resetPlayer(playerName) {
     player.dezenas = "";
     player.centenas = "";
     player.iswon = false;
-
     const playerContainer = document.querySelectorAll('.playerContainer')[playerName - 1];
     const diceResult = playerContainer.querySelector('.diceResult');
     diceResult.innerText = "Resultado do dado:";
-
     const totalresult = playerContainer.querySelector('.totalresult');
     totalresult.innerText = `Pontuação: ${player.centenas}${player.dezenas}${player.totalPoints}`;
 }
